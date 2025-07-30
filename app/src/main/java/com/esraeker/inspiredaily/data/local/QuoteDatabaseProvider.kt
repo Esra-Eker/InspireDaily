@@ -5,7 +5,7 @@ import androidx.room.Room
 
 object QuoteDatabaseProvider {  //Kotlin’de singleton tanımıdır — Kotlin’de object anahtar kelimesi ile yazılan sınıf, sadece bir kez oluşturulur.
 
-    @Volatile  //INSTANCE değişkenine farklı thread'lerden erişimde çakışma olmasın, son değeri herkes görsün diye
+    @Volatile  //INSTANCE değişkenine farklı thread'lerden erişimde çakışma olmasın, son değeri herkes görsün diye.
     private var INSTANCE: QuoteDatabase? = null
 
     fun getDatabase(context: Context): QuoteDatabase {
