@@ -60,6 +60,9 @@ dependencies {
     implementation(libs.androidx.room.runtime)
     implementation(libs.androidx.room.ktx)
     kapt(libs.androidx.room.compiler)
-
     implementation(libs.androidx.lifecycle.viewmodel)
+    implementation(libs.retrofit)
+    implementation(libs.retrofit.gson)
+    implementation(libs.okhttp.logging)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
 }

@@ -1,36 +1,41 @@
 package com.esraeker.inspiredaily
 
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.Button
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.tooling.preview.Preview
-import com.esraeker.inspiredaily.ui.theme.InspireDailyTheme
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
 import android.os.Build
-import androidx.compose.foundation.layout.Column
+import android.os.Bundle
+import android.util.Log
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import androidx.lifecycle.ViewModelProvider
+import com.esraeker.inspiredaily.data.local.QuoteDatabaseProvider
+import com.esraeker.inspiredaily.data.repository.QuoteRepository
+import com.esraeker.inspiredaily.ui.theme.InspireDailyTheme
+import com.esraeker.inspiredaily.viewmodel.QuoteViewModel
+import com.esraeker.inspiredaily.viewmodel.QuoteViewModelFactory
 
 class MainActivity : ComponentActivity() {
+
+    private lateinit var viewModel: QuoteViewModel
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // Android 13+ bildirim izni için
+
+        Log.d("CHECK", "onCreate başladı")
+
+        // Bildirim izni (Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
                 != android.content.pm.PackageManager.PERMISSION_GRANTED
@@ -41,53 +46,31 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
-        enableEdgeToEdge() // kenarlara kadar içerik görebilmek için
+
+        // ViewModel kurulumu
+        val dao = QuoteDatabaseProvider.getDatabase(applicationContext).quoteDao()
+        val repository = QuoteRepository(dao)
+        val factory = QuoteViewModelFactory(repository)
+        viewModel = ViewModelProvider(this, factory)[QuoteViewModel::class.java]
+
+        // Tam ekran içerik
+        enableEdgeToEdge()
+
+        // Compose arayüzü tanımlanıyor
         setContent {
             InspireDailyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(name = "Android", modifier = Modifier.padding(innerPadding)
+                    GreetingScreen(
+                        modifier = Modifier.padding(innerPadding)
                     )
                 }
             }
         }
     }
 }
-private fun showMotivationalNotification(context: Context, message: String) {
-    val channelId = "motivation_channel_v3"
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        val name = "Motivational Messages"
-        val descriptionText = "Channel for daily motivational messages"
-        val importance = NotificationManager.IMPORTANCE_DEFAULT
-        val channel = NotificationChannel(channelId, name, importance).apply {
-            description = descriptionText
-        }
-        val notificationManager: NotificationManager =
-            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        notificationManager.createNotificationChannel(channel)
-    }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-        if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
-            != android.content.pm.PackageManager.PERMISSION_GRANTED
-        ) {
-            return // izin yoksa bildirim gösterme
-        }
-    }
-
-    val builder = NotificationCompat.Builder(context, channelId)
-        .setSmallIcon(android.R.drawable.ic_dialog_info)
-        .setContentTitle("Daily Motivation")
-        .setContentText(message)
-        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
-
-    with(NotificationManagerCompat.from(context)) {
-        notify(2001, builder.build())
-    }
-}
 
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
+fun GreetingScreen(modifier: Modifier = Modifier) {
     val context = LocalContext.current
 
     Column(
@@ -109,10 +92,45 @@ fun Greeting(name: String, modifier: Modifier = Modifier) {
     }
 }
 
+private fun showMotivationalNotification(context: Context, message: String) {
+    val channelId = "motivation_channel_v3"
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+        val channel = NotificationChannel(
+            channelId,
+            "Motivational Messages",
+            NotificationManager.IMPORTANCE_DEFAULT
+        ).apply {
+            description = "Channel for daily motivational messages"
+        }
+        val notificationManager =
+            context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        notificationManager.createNotificationChannel(channel)
+    }
+
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        if (context.checkSelfPermission(android.Manifest.permission.POST_NOTIFICATIONS)
+            != android.content.pm.PackageManager.PERMISSION_GRANTED
+        ) {
+            return
+        }
+    }
+
+    val builder = NotificationCompat.Builder(context, channelId)
+        .setSmallIcon(android.R.drawable.ic_dialog_info)
+        .setContentTitle("Daily Motivation")
+        .setContentText(message)
+        .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+
+    with(NotificationManagerCompat.from(context)) {
+        notify(2001, builder.build())
+    }
+}
+
 @Preview(showBackground = true)
 @Composable
 fun GreetingPreview() {
     InspireDailyTheme {
-        Greeting("Android")
+        GreetingScreen()
     }
 }

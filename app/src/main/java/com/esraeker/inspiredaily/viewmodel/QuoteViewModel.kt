@@ -26,4 +26,9 @@ class QuoteViewModel(private val repository: QuoteRepository) : ViewModel() {
             repository.insertQuote(quote)
         }
     }
+    init {
+        viewModelScope.launch {
+            repository.testApiFetch()
+        }
+    }
 }
