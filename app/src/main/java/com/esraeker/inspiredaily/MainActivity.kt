@@ -25,6 +25,7 @@ import com.esraeker.inspiredaily.data.repository.QuoteRepository
 import com.esraeker.inspiredaily.ui.theme.InspireDailyTheme
 import com.esraeker.inspiredaily.viewmodel.QuoteViewModel
 import com.esraeker.inspiredaily.viewmodel.QuoteViewModelFactory
+import com.esraeker.inspiredaily.ui.screen.QuoteListScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -60,7 +61,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             InspireDailyTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    GreetingScreen(
+                    QuoteListScreen(
+                        viewModel = viewModel,
                         modifier = Modifier.padding(innerPadding)
                     )
                 }

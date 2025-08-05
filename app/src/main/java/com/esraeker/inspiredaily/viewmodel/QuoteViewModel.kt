@@ -21,9 +21,9 @@ class QuoteViewModel(private val repository: QuoteRepository) : ViewModel() {
             initialValue = emptyList() //Uygulama ilk açıldığında veri gelmeden önce gösterilecek başlangıç değeri (boş liste)
         )
 
-    fun insertQuote(quote: QuoteEntity) {  //UI'dan gelen isteği alıp veri katmanına aktaran mantıksal köprüdür. Yeni söz eklemek için çağrılır.
+    fun insertQuote(quote: List<QuoteEntity>) {  //UI'dan gelen isteği alıp veri katmanına aktaran mantıksal köprüdür. Yeni söz eklemek için çağrılır.
         viewModelScope.launch { // viewModelScope.launch ile coroutine başlatılır
-            repository.insertQuote(quote)
+            repository.insertAllQuotes(quote)
         }
     }
     init {

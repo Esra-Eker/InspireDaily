@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.dp
 import com.esraeker.inspiredaily.viewmodel.QuoteViewModel
 
 @Composable
-fun QuoteListScreen(viewModel: QuoteViewModel) {
+fun QuoteListScreen(viewModel: QuoteViewModel, modifier: Modifier = Modifier) {
     val quoteList by viewModel.quotes.collectAsState()
 
     Column(

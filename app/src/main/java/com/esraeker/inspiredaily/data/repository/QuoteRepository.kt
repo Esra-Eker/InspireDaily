@@ -8,8 +8,8 @@ import kotlinx.coroutines.flow.Flow
 
 class QuoteRepository(private val quoteDao: QuoteDao) {  //QuoteDao üzerinden veriye ulaşacak
 
-    suspend fun insertQuote(quote: QuoteEntity) {
-        quoteDao.insertQuote(quote)
+    suspend fun insertAllQuotes(quote: List<QuoteEntity>) {
+        quoteDao.insertAllQuotes(quote)
     }
 
     fun getAllQuotes(): Flow<List<QuoteEntity>> {
@@ -18,6 +18,10 @@ class QuoteRepository(private val quoteDao: QuoteDao) {  //QuoteDao üzerinden v
 
     suspend fun testApiFetch() {
         val quotes = ApiClient.quoteApiService.getQuotes()
+        val entities = quotes.map {
+            QuoteEntity(id = it.id, text = it.text, author = it.author)
+        }
+        insertAllQuotes(entities)
         quotes.forEach {
             Log.d("API_TEST","API'den gelen: ${it.id} - ${it.text}")
         }
